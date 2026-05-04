@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Leads · Diaz Seguros</title>
+    <style>
+        :root {
+            --primary: #003087;
+            --accent: #e8500a;
+            --success: #1a9a4a;
+            --warning: #d4820a;
+            --danger: #c0392b;
+            --bg: #f0f3f8;
+            --card: #ffffff;
+            --text: #1a1a2e;
+            --text-light: #5a6478;
+            --border: #dde3ed;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        /* LOGIN */
+        .login-screen {
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #001f5a 0%, #003087 60%, #1a5cb8 100%);
+        }
+        .login-card {
+            background: white; border-radius: 20px; padding: 44px 40px;
+            width: 100%; max-width: 380px; box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .login-card .icon { font-size: 44px; margin-bottom: 16px; display: block; }
+        .login-card h1 { font-size: 22px; color: var(--primary); margin-bottom: 6px; }
+        .login-card .sub { color: var(--text-light); font-size: 14px; margin-bottom: 28px; }
+        .login-card input {
+            width: 100%; padding: 13px 16px; border: 2px solid var(--border);
+            border-radius: 10px; font-size: 16px; margin-bottom: 14px;
+            transition: border-color 0.2s; color: var(--text);
+        }
+        .login-card input:focus { outline: none; border-color: var(--primary); }
+        .login-card button {
+            width: 100%; padding: 14px; background: var(--primary); color: white;
+            border: none; border-radius: 10px; font-size: 16px; font-weight: 700;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .login-card button:hover { background: var(--accent); }
+        .login-error { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
+
+        /* DASHBOARD */
+        .dashboard { display: none; }
+
+        /* HEADER */
+        .dash-header {
+            background: var(--primary); color: white; padding: 14px 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+        }
+        .dash-header h1 { font-size: 18px; display: flex; align-items: center; gap: 10px; }
+        .dash-actions { display: flex; gap: 10px; align-items: center; }
+        .btn { padding: 8px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-accent { background: var(--accent); color: white; }
+        .btn-accent:hover { background: #c94008; }
+        .btn-outline { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); }
+        .btn-outline:hover { background: rgba(255,255,255,0.25); }
+        .btn-sm { padding: 5px 11px; font-size: 12px; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #a93226; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #158a3e; }
+
+        /* MAIN */
+        .dash-main { padding: 28px 24px; max-width: 1300px; margin: 0 auto; }
+
+        /* STATS */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+        .stat-card { background: var(--card); border-radius: 14px; padding: 22px 20px; box-shadow: 0 2px 12px rgba(0,48,135,0.08); border-left: 4px solid var(--primary); }
+        .stat-card.accent { border-left-color: var(--accent); }
+        .stat-card.success { border-left-color: var(--success); }
+        .stat-card.warning { border-left-color: var(--warning); }
+        .stat-num { font-size: 32px; font-weight: 800; color: var(--primary); display: block; line-height: 1; }
+        .stat-card.accent .stat-num { color: var(--accent); }
+        .stat-card.success .stat-num { color: var(--success); }
+        .stat-card.warning .stat-num { color: var(--warning); }
+        .stat-label { font-size: 13px; color: var(--text-light); margin-top: 6px; font-weight: 600; }
+
+        /* FILTERS */
+        .filters-bar { background: var(--card); border-radius: 14px; padding: 18px 20px; margin-bottom: 20px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; box-shadow: 0 2px 12px rgba(0,48,135,0.07); }
+        .filters-bar input, .filters-bar select {
+            padding: 9px 13px; border: 2px solid var(--border); border-radius: 8px;
+            font-size: 14px; color: var(--text); background: #fafbfd; min-width: 160px;
+        }
+        .filters-bar input:focus, .filters-bar select:focus { outline: none; border-color: var(--primary); }
+        .filters-bar label { font-size: 13px; font-weight: 600; color: var(--text-light); }
+
+        /* TABLE */
+        .table-card { background: var(--card); border-radius: 14px; box-shadow: 0 2px 12px rgba(0,48,135,0.07); overflow: hidden; }
+        .table-header { padding: 18px 22px; border-bottom: 2px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .table-header h2 { font-size: 16px; color: var(--text); }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        thead { background: #f6f8fc; }
+        th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.6px; border-bottom: 2px solid var(--border); white-space: nowrap; }
+        td { padding: 13px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #f6f8fc; }
+        .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-pending { background: #fff3cd; color: #856404; }
+        .badge-contacted { background: #d1ecf1; color: #0c5460; }
+        .badge-won { background: #d4edda; color: #155724; }
+        .badge-lost { background: #f8d7da; color: #721c24; }
+        .seguro-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+        .seguro-tag { background: rgba(0,48,135,0.08); color: var(--primary); padding: 2px 7px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+        .no-leads { text-align: center; padding: 60px 20px; color: var(--text-light); }
+        .no-leads .icon { font-size: 48px; display: block; margin-bottom: 12px; }
+
+        /* ESTADO SELECT */
+        .estado-select {
+            padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px;
+            font-size: 12px; font-weight: 600; cursor: pointer; background: white; color: var(--text);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .dash-main { padding: 16px 12px; }
+            .dash-header h1 span { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════ LOGIN ═══════ -->
+<div class="login-screen" id="login-screen">
+    <div class="login-card">
+        <span class="icon">🛡️</span>
+        <h1>Panel de Leads</h1>
+        <p class="sub">Agente Autorizado · Diaz Seguros</p>
+        <input type="password" id="password-input" placeholder="Contraseña de acceso" onkeypress="if(event.key==='Enter') checkLogin()">
+        <button onclick="checkLogin()">🔓 Entrar</button>
+        <p class="login-error" id="login-error">Contraseña incorrecta. Inténtalo de nuevo.</p>
+        <p style="font-size:11px;color:#aaa;margin-top:16px;">Contraseña por defecto: <strong>diaz2026</strong><br>Cámbiala en el código (variable PASSWORD)</p>
+    </div>
+</div>
+
+<!-- ═══════ DASHBOARD ═══════ -->
+<div class="dashboard" id="dashboard">
+    <div class="dash-header">
+        <h1>📊 <span>Panel de Leads · Diaz Seguros</span></h1>
+        <div class="dash-actions">
+            <button class="btn btn-accent" onclick="exportCSV()">⬇️ Exportar CSV</button>
+            <button class="btn btn-outline" onclick="logout()">🚪 Salir</button>
+        </div>
+    </div>
+
+    <div class="dash-main">
+        <!-- ESTADÍSTICAS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-num" id="stat-total">0</span>
+                <div class="stat-label">Total de leads</div>
+            </div>
+            <div class="stat-card accent">
+                <span class="stat-num" id="stat-pending">0</span>
+                <div class="stat-label">Pendientes de llamar</div>
+            </div>
+            <div class="stat-card success">
+                <span class="stat-num" id="stat-won">0</span>
+                <div class="stat-label">Pólizas contratadas</div>
+            </div>
+            <div class="stat-card warning">
+                <span class="stat-num" id="stat-today">0</span>
+                <div class="stat-label">Leads hoy</div>
+            </div>
+        </div>
+
+        <!-- FILTROS -->
+        <div class="filters-bar">
+            <label>Buscar:</label>
+            <input type="text" id="search-input" placeholder="Nombre, teléfono, email..." oninput="renderTable()">
+            <label>Seguro:</label>
+            <select id="filter-seguro" onchange="renderTable()">
+                <option value="">Todos</option>
+                <option value="Hogar">Hogar</option>
+                <option value="Vida">Vida</option>
+                <option value="Deceso">Deceso</option>
+            </select>
+            <label>Estado:</label>
+            <select id="filter-estado" onchange="renderTable()">
+                <option value="">Todos</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Contactado">Contactado</option>
+                <option value="Contratado">Contratado</option>
+                <option value="No interesado">No interesado</option>
+            </select>
+            <button class="btn btn-outline" style="background:#e0e6ef;color:var(--text);border:none;" onclick="clearFilters()">✕ Limpiar</button>
+        </div>
+
+        <!-- TABLA -->
+        <div class="table-card">
+            <div class="table-header">
+                <h2 id="table-count">Leads</h2>
+                <button class="btn btn-danger btn-sm" onclick="clearAllLeads()">🗑 Borrar todos</button>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Fecha</th>
+                            <th>Nombre</th>
+                            <th>Teléfono</th>
+                            <th>Email</th>
+                            <th>Seguro(s)</th>
+                            <th>Horario</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leads-tbody">
+                    </tbody>
+                </table>
+                <div class="no-leads" id="no-leads" style="display:none">
+                    <span class="icon">📭</span>
+                    <strong>No hay leads todavía</strong>
+                    <p>Cuando alguien rellene el formulario de la web aparecerá aquí.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ⚠️ CAMBIA LA CONTRASEÑA AQUÍ
+    const PASSWORD = 'diaz2026';
+
+    function checkLogin() {
+        const val = document.getElementById('password-input').value;
+        if (val === PASSWORD) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            renderAll();
+        } else {
+            document.getElementById('login-error').style.display = 'block';
+            document.getElementById('password-input').value = '';
+        }
+    }
+
+    function logout() {
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('password-input').value = '';
+        document.getElementById('login-error').style.display = 'none';
+    }
+
+    function getLeads() {
+        return JSON.parse(localStorage.getItem('leads_ocaso') || '[]');
+    }
+
+    function saveLeads(leads) {
+        localStorage.setItem('leads_ocaso', JSON.stringify(leads));
+    }
+
+    function renderAll() {
+        renderStats();
+        renderTable();
+    }
+
+    function renderStats() {
+        const leads = getLeads();
+        const today = new Date().toLocaleDateString('es-ES');
+        document.getElementById('stat-total').textContent   = leads.length;
+        document.getElementById('stat-pending').textContent = leads.filter(l => l.estado === 'Pendiente').length;
+        document.getElementById('stat-won').textContent     = leads.filter(l => l.estado === 'Contratado').length;
+        document.getElementById('stat-today').textContent   = leads.filter(l => l.fecha && l.fecha.startsWith(today)).length;
+    }
+
+    function renderTable() {
+        const leads      = getLeads();
+        const search     = document.getElementById('search-input').value.toLowerCase();
+        const seguro     = document.getElementById('filter-seguro').value;
+        const estado     = document.getElementById('filter-estado').value;
+
+        const filtered = leads.filter(l => {
+            const matchSearch = !search ||
+                (l.nombre   && l.nombre.toLowerCase().includes(search)) ||
+                (l.telefono && l.telefono.toLowerCase().includes(search)) ||
+                (l.email    && l.email.toLowerCase().includes(search));
+            const matchSeguro = !seguro || (l.seguros && l.seguros.includes(seguro));
+            const matchEstado = !estado || l.estado === estado;
+            return matchSearch && matchSeguro && matchEstado;
+        });
+
+        const tbody = document.getElementById('leads-tbody');
+        const noLeads = document.getElementById('no-leads');
+        document.getElementById('table-count').textContent = `${filtered.length} lead${filtered.length !== 1 ? 's' : ''}`;
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = '';
+            noLeads.style.display = 'block';
+            return;
+        }
+        noLeads.style.display = 'none';
+
+        tbody.innerHTML = filtered.map((l, i) => {
+            const tags = (l.seguros || '').split(', ').map(s => `<span class="seguro-tag">${s}</span>`).join('');
+            const badgeClass = { 'Pendiente': 'badge-pending', 'Contactado': 'badge-contacted', 'Contratado': 'badge-won', 'No interesado': 'badge-lost' }[l.estado] || 'badge-pending';
+            return `<tr>
+                <td style="color:var(--text-light);font-size:12px;">${i + 1}</td>
+                <td style="white-space:nowrap;font-size:12px;">${l.fecha || '-'}</td>
+                <td><strong>${escHtml(l.nombre)}</strong></td>
+                <td><a href="tel:${escHtml(l.telefono)}" style="color:var(--primary);font-weight:700;text-decoration:none;">${escHtml(l.telefono)}</a></td>
+                <td style="font-size:13px;">${l.email ? `<a href="mailto:${escHtml(l.email)}" style="color:var(--primary);text-decoration:none;">${escHtml(l.email)}</a>` : '<span style="color:#ccc">—</span>'}</td>
+                <td><div class="seguro-tags">${tags}</div></td>
+                <td style="font-size:12px;color:var(--text-light);">${escHtml(l.horario || '-')}</td>
+                <td>
+                    <select class="estado-select" onchange="updateEstado(${l.id}, this.value)">
+                        <option ${l.estado === 'Pendiente'       ? 'selected' : ''}>Pendiente</option>
+                        <option ${l.estado === 'Contactado'      ? 'selected' : ''}>Contactado</option>
+                        <option ${l.estado === 'Contratado'      ? 'selected' : ''}>Contratado</option>
+                        <option ${l.estado === 'No interesado'   ? 'selected' : ''}>No interesado</option>
+                    </select>
+                </td>
+                <td style="white-space:nowrap;">
+                    <a href="https://wa.me/34${escHtml(l.telefono.replace(/\D/g,''))}" target="_blank" class="btn btn-success btn-sm" title="WhatsApp">💬</a>
+                    <button class="btn btn-danger btn-sm" onclick="deleteLead(${l.id})" title="Eliminar" style="margin-left:4px;">🗑</button>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    function escHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function updateEstado(id, newEstado) {
+        const leads = getLeads().map(l => l.id === id ? { ...l, estado: newEstado } : l);
+        saveLeads(leads);
+        renderStats();
+    }
+
+    function deleteLead(id) {
+        if (!confirm('¿Eliminar este lead?')) return;
+        saveLeads(getLeads().filter(l => l.id !== id));
+        renderAll();
+    }
+
+    function clearAllLeads() {
+        if (!confirm('¿Borrar TODOS los leads? Esta acción no se puede deshacer.')) return;
+        localStorage.removeItem('leads_ocaso');
+        renderAll();
+    }
+
+    function clearFilters() {
+        document.getElementById('search-input').value = '';
+        document.getElementById('filter-seguro').value = '';
+        document.getElementById('filter-estado').value = '';
+        renderTable();
+    }
+
+    function exportCSV() {
+        const leads = getLeads();
+        if (leads.length === 0) { alert('No hay leads para exportar.'); return; }
+        const headers = ['ID', 'Fecha', 'Nombre', 'Telefono', 'Email', 'Seguros', 'Horario', 'Estado'];
+        const rows = leads.map(l => [l.id, l.fecha, l.nombre, l.telefono, l.email, l.seguros, l.horario, l.estado].map(v => `"${String(v || '').replace(/"/g, '""')}"`));
+        const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+        const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `leads_ocaso_${new Date().toISOString().slice(0,10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    // Allow Enter key on password
+    document.getElementById('password-input').addEventListener('keypress', e => {
+        if (e.key === 'Enter') checkLogin();
+    });
+</script>
+</body>
+</html>
